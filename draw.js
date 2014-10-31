@@ -1,5 +1,5 @@
 var canvas = Snap("svg");
-var color_palette=['#655643', '#80BCA3', '#F6F7BD', '#E6AC27', '#BF4D28'];
+var color_palette=['#829869', '#E0E4CB', '#CDCCBA', '#F6F8F7', '#7D7A73'];
 var alphabet="We are the hollow men We are the stuffed men Leaning together Headpiece filled with straw. Alas! Our dried voices, when We whisper together Are quiet and meaningless As wind in dry grass Or rats' feet over broken glass In our dry cellar".split(" ");
 var padding = 30;
 
@@ -51,9 +51,14 @@ function draw_lines(struct){
 			if(struct[index2] != origin){
 				canvas.line(origin['coords'][0], origin['coords'][1], 
 							struct[index2]['coords'][0], struct[index2]['coords'][1])
-							.attr({stroke:origin['color'], strokeWidth: 1, strokeOpacity: .2})
+							.attr({stroke:origin['color'], strokeWidth: 1, strokeOpacity: Math.random})
 			}
 		}
+	}
+}
+function draw_faces(struct){
+	for(var index = 0; index<struct.length-1; index++){
+		origin = struct[index]
 		for(var index3 = 0; index3<struct.length-3; index3+=3){
 			line_to_polygon([struct[index3]['coords'][0], struct[index3]['coords'][1]], 
 							[struct[index3+1]['coords'][0], struct[index3+1]['coords'][1]],
@@ -68,21 +73,41 @@ function draw_text(struct){
 			.attr({fill:'black', fillOpacity: .8})
 	}
 }
-function draw(num_structs){
+function draw_circles(struct){
+	for(var index = 0; index<struct.length-1; index++){
+		for(var point_index = 0; point_index<struct[index].length; point_index++){
+			console.log(struct[point_index])
+			canvas.circle(struct[point_index]['coords'][0], struct[point_index]['coords'][1], 2).
+			attr({fill:'#FF0000', fillOpacity:0, stroke:struct[point_index]['color'], strokeWidth: 1})
+		}
+	}
+}
+function draw_structs(num_structs){
 	var canvas = Snap("svg");
 	var the_structs = generate_the_structs(num_structs);
 	console.log(the_structs)
 	for(var index = 0; index<num_structs; index++){
-		/*for(var point_index = 0; point_index<the_structs[index].length; point_index++){
-			canvas.circle(the_structs[index][point_index]['coords'][0], the_structs[index][point_index]['coords'][1], 2).
-			attr({fill:'#FF0000', fillOpacity:0, stroke:the_structs[index][point_index]['color'], strokeWidth: 1})
-		}*/
-		console.log(the_structs[index])
 		draw_lines(the_structs[index])
 		draw_text(the_structs[index])
+		draw_faces(the_structs[index])
+		draw_circles(the_structs[index])
 	}
 };
+function draw(){
+	//grab all the objects
+	types_of_objects = ['line', 'text', 'circle', 'polygon']
 
+	//empty the current svg container
+	$(".svg").empty();
+
+	//redraw
+	draw_structs(random_range(1,1))
+	var svg = new Walkway('.svg', {duration:5000});
+
+	svg.draw(function() {
+	  console.log('Animation finished');
+	});
+}
 $(document).ready(function(){
-	draw(random_range(1,1));
+	draw();
 });
