@@ -1,5 +1,5 @@
 var canvas = Snap("svg");
-var color_palette=['#829869', '#E0E4CB', '#CDCCBA', '#F6F8F7', '#7D7A73'];
+var color_palette=['#829869', '#E0E4CB', '#CDCCBA', '#7D7A73'];
 var alphabet="We are the hollow men We are the stuffed men Leaning together Headpiece filled with straw. Alas! Our dried voices, when We whisper together Are quiet and meaningless As wind in dry grass Or rats' feet over broken glass In our dry cellar".split(" ");
 var padding = 30;
 
@@ -110,4 +110,7 @@ function draw(){
 }
 $(document).ready(function(){
 	draw();
+	$(document).on('click', function(){
+		window.location.reload()
+	})
 });
