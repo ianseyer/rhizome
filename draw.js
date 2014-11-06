@@ -1,8 +1,11 @@
 var canvas = Snap("svg");
-var color_palette=['#829869', '#E0E4CB', '#CDCCBA', '#7D7A73'];
+var color_palettes=[['#000000', '#0A0A0A', '#A0A0A0'],
+					['#F1DF91', '#BEC38D', '#7B9D88', '#387782', '#055B7E']];
 var alphabet="We are the hollow men We are the stuffed men Leaning together Headpiece filled with straw. Alas! Our dried voices, when We whisper together Are quiet and meaningless As wind in dry grass Or rats' feet over broken glass In our dry cellar".split(" ");
-var padding = 30;
+var padding = 20;
+var color_palette = color_palettes[1]
 
+document.body.style.backgroundColor = color_palette[0];
 /* 
 mini documentation of snavsvg:
 var t1 = paper.line(50, 50, 100, 100);
@@ -10,9 +13,16 @@ paper.circle(50, 50, 40).attr({
     fill: g
 });
 */
-var random_range = function(min, max){return Math.round(Math.random() * (max-min) + min)}
+
+// H E L P E R S
+function generate_opacity(){random = Math.random(); if(random-.2 > 0){return random-.2} else {return random}}
+function random_range(min, max){return Math.round(Math.random() * (max-min) + min)}
+
+
+
 console.log('width: '+$(window).width())
 console.log('height: '+$(window).height())
+
 function struct(num_points, the_color){
 	/* structs are a JSON array of: {the_color: val, label:val, coords:[coord,coord]}
 		they are the schema for connecting the points. internally, all points are connected to all other points. */
@@ -20,23 +30,25 @@ function struct(num_points, the_color){
 
 	var points = [];
 	for(var index = 0; index<num_points-1; index++){
-		var point = {"color":the_color, "label":alphabet[index], "coords":[random_range(padding, $(window).width()-padding), random_range(padding, $(window).height()-padding)]}
+		var point = {"color":the_color, "label":"", "coords":[random_range(padding, $(window).width()-padding), random_range(padding, $(window).height()-padding)]}
+		point['label'] = point['coords'][1]+","+point['coords'][0]
 		points.push(point)
 	}
 	return points
 };
+
 function generate_the_structs(num_structs){
 	var list_of_structs = [];
 
 	for(var index = 0; index<num_structs; index++){
-		individual_struct = struct(7, color_palette[random_range(0, color_palette.length)])
+		individual_struct = struct(12, color_palette[random_range(0, color_palette.length)])
 		list_of_structs.push(individual_struct);
 	}
 	return list_of_structs;
 };
 
 function line_to_polygon(one, two, three, color, opacity){
-	canvas.polygon(one[0], one[1], two[0], two[1], three[0], three[1]).attr({fill:color, fillOpacity: opacity})
+	canvas.polygon(one[0], one[1], two[0], two[1], three[0], three[1]).attr({fill:color, fillOpacity:opacity})
 }
 
 function draw_lines(struct){
@@ -47,11 +59,11 @@ function draw_lines(struct){
 
 	for(var index = 0; index<struct.length-1; index++){
 		origin = struct[index]
-		for(var index2 = 0; index2<struct.length-1; index2++){
+		for(var index2 = 0; index2<struct.length-4; index2++){
 			if(struct[index2] != origin){
 				canvas.line(origin['coords'][0], origin['coords'][1], 
 							struct[index2]['coords'][0], struct[index2]['coords'][1])
-							.attr({stroke:origin['color'], strokeWidth: 1, strokeOpacity: Math.random})
+							.attr({stroke:origin['color'], strokeWidth: 1, strokeOpacity: .3})
 			}
 		}
 	}
@@ -59,18 +71,18 @@ function draw_lines(struct){
 function draw_faces(struct){
 	for(var index = 0; index<struct.length-1; index++){
 		origin = struct[index]
-		for(var index3 = 0; index3<struct.length-3; index3+=3){
+		for(var index3 = 0; index3<struct.length-1; index3+=1){
 			line_to_polygon([struct[index3]['coords'][0], struct[index3]['coords'][1]], 
 							[struct[index3+1]['coords'][0], struct[index3+1]['coords'][1]],
 							[struct[index3+2]['coords'][0], struct[index3+2]['coords'][1]],
-							origin['color'], Math.random()-.75)
+							origin['color'], .05)
 		}
 	}
 }
 function draw_text(struct){
 	for(var index = 0; index<struct.length-1; index++){
 		canvas.text(struct[index]['coords'][0], struct[index]['coords'][1], struct[index]['label'])
-			.attr({fill:'black', fillOpacity: .8})
+			.attr({fill:color_palette[1], fillOpacity:0})
 	}
 }
 function draw_circles(struct){
@@ -86,31 +98,59 @@ function draw_structs(num_structs){
 	var canvas = Snap("svg");
 	var the_structs = generate_the_structs(num_structs);
 	console.log(the_structs)
+	console.log(generate_opacity)
 	for(var index = 0; index<num_structs; index++){
 		draw_lines(the_structs[index])
-		draw_text(the_structs[index])
+		//draw_text(the_structs[index])
 		draw_faces(the_structs[index])
-		draw_circles(the_structs[index])
 	}
 };
+
+function randomize_color_palette_selection(){
+	if(color_palette){
+		color_palette = color_palettes[random_range(0, color_palettes.length)];
+	}
+}
+function randomize_background_color(){
+	var color = window.color_palette[random_range(0, color_palette.length)]
+	document.body.style.backgroundColor = color;
+}
 function draw(){
-	//grab all the objects
-	types_of_objects = ['line', 'text', 'circle', 'polygon']
 
 	//empty the current svg container
 	$(".svg").empty();
+	//randomize_color_palette_selection();
+	//randomize_background_color();
+	console.log(generate_opacity())
+	//randomize_color_palette_selection();
+	//document.body.style.backgroundColor = background_color;
 
 	//redraw
 	draw_structs(random_range(1,1))
-	var svg = new Walkway('.svg', {duration:5000});
+	var svg = $('svg')/*new Walkway('.svg', {});
 
 	svg.draw(function() {
 	  console.log('Animation finished');
-	});
+	});*/
 }
 $(document).ready(function(){
-	draw();
 	$(document).on('click', function(){
-		window.location.reload()
+		draw();
 	})
+	/* window.clearInterval();
+	$(document).on('click', function(){
+		window.clearInterval(window.interval)
+		var time_in_between = 0; //in seconds
+		window.interval = window.setInterval(function(){
+			time_in_between += .001
+		}, 1)
+		$(document).on('click', function(){
+				window.clearInterval(window.interval)
+				window.interval = window.setInterval(function(){
+					window.clearInterval();
+					draw()
+				}, (100000*time_in_between))
+			})
+		//window.location.reload()
+	})*/
 });
