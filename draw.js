@@ -1,9 +1,10 @@
 var canvas = Snap("svg");
 var color_palettes=[['#000000', '#0A0A0A', '#A0A0A0'],
-					['#F1DF91', '#BEC38D', '#7B9D88', '#387782', '#055B7E']];
+					['#F1DF91', '#BEC38D', '#7B9D88', '#387782', '#055B7E'],
+					['#ABC84B', '#F8F5E7']];
 var alphabet="We are the hollow men We are the stuffed men Leaning together Headpiece filled with straw. Alas! Our dried voices, when We whisper together Are quiet and meaningless As wind in dry grass Or rats' feet over broken glass In our dry cellar".split(" ");
 var padding = 20;
-var color_palette = color_palettes[1]
+var color_palette = color_palettes[2]
 
 document.body.style.backgroundColor = color_palette[0];
 /* 
@@ -31,7 +32,7 @@ function struct(num_points, the_color){
 	var points = [];
 	for(var index = 0; index<num_points-1; index++){
 		var point = {"color":the_color, "label":"", "coords":[random_range(padding, $(window).width()-padding), random_range(padding, $(window).height()-padding)]}
-		point['label'] = point['coords'][1]+","+point['coords'][0]
+		point['label'] = alphabet[index]
 		points.push(point)
 	}
 	return points
@@ -82,7 +83,7 @@ function draw_faces(struct){
 function draw_text(struct){
 	for(var index = 0; index<struct.length-1; index++){
 		canvas.text(struct[index]['coords'][0], struct[index]['coords'][1], struct[index]['label'])
-			.attr({fill:color_palette[1], fillOpacity:0})
+			.attr({fill:'black', fillOpacity:.9})
 	}
 }
 function draw_circles(struct){
@@ -101,7 +102,7 @@ function draw_structs(num_structs){
 	console.log(generate_opacity)
 	for(var index = 0; index<num_structs; index++){
 		draw_lines(the_structs[index])
-		//draw_text(the_structs[index])
+		draw_text(the_structs[index])
 		draw_faces(the_structs[index])
 	}
 };
@@ -134,10 +135,10 @@ function draw(){
 	});*/
 }
 $(document).ready(function(){
-	$(document).on('click', function(){
+	/*$(document).on('click', function(){
 		draw();
-	})
-	/* window.clearInterval();
+	})*/
+	 window.clearInterval();
 	$(document).on('click', function(){
 		window.clearInterval(window.interval)
 		var time_in_between = 0; //in seconds
@@ -149,8 +150,8 @@ $(document).ready(function(){
 				window.interval = window.setInterval(function(){
 					window.clearInterval();
 					draw()
-				}, (100000*time_in_between))
+				}, (60/time_in_between))
 			})
 		//window.location.reload()
-	})*/
+	})
 });
