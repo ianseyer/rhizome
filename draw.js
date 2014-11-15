@@ -1,12 +1,12 @@
 var canvas = Snap("svg");
 var color_palettes=[['#000000', '#0A0A0A', '#A0A0A0'],
-					['#F1DF91', '#BEC38D', '#7B9D88', '#387782', '#055B7E'],
-					['#ABC84B', '#F8F5E7']];
+					['#F1DF91', '#BEC38D', '#7B9D88', '#FFA81B', '#FF001B', '#387782', '#055B7E'],
+					['#ABC84B', '#F8F5E7',]];
 var alphabet="We are the hollow men We are the stuffed men Leaning together Headpiece filled with straw. Alas! Our dried voices, when We whisper together Are quiet and meaningless As wind in dry grass Or rats' feet over broken glass In our dry cellar".split(" ");
 var padding = 20;
 var color_palette = color_palettes[2]
 
-document.body.style.backgroundColor = color_palette[0];
+document.body.style.backgroundColor = "rgba(0,0,0,1)";
 /* 
 mini documentation of snavsvg:
 var t1 = paper.line(50, 50, 100, 100);
@@ -28,7 +28,6 @@ function struct(num_points, the_color){
 	/* structs are a JSON array of: {the_color: val, label:val, coords:[coord,coord]}
 		they are the schema for connecting the points. internally, all points are connected to all other points. */
 
-
 	var points = [];
 	for(var index = 0; index<num_points-1; index++){
 		var point = {"color":the_color, "label":"", "coords":[random_range(padding, $(window).width()-padding), random_range(padding, $(window).height()-padding)]}
@@ -40,9 +39,10 @@ function struct(num_points, the_color){
 
 function generate_the_structs(num_structs){
 	var list_of_structs = [];
+	window.color_palette = color_palettes[1]
 
 	for(var index = 0; index<num_structs; index++){
-		individual_struct = struct(12, color_palette[random_range(0, color_palette.length)])
+		individual_struct = struct(12, window.color_palette[random_range(0, window.color_palette.length)])
 		list_of_structs.push(individual_struct);
 	}
 	return list_of_structs;
@@ -58,13 +58,13 @@ function draw_lines(struct){
 	origin_point is the point index (within the struct) from which to draw the lines
 	*/
 
-	for(var index = 0; index<struct.length-1; index++){
+	for(var index = 0; index<struct.length-6; index++){
 		origin = struct[index]
-		for(var index2 = 0; index2<struct.length-4; index2++){
+		for(var index2 = 0; index2<struct.length-2; index2++){
 			if(struct[index2] != origin){
 				canvas.line(origin['coords'][0], origin['coords'][1], 
 							struct[index2]['coords'][0], struct[index2]['coords'][1])
-							.attr({stroke:origin['color'], strokeWidth: 1, strokeOpacity: .3})
+							.attr({stroke:origin['color'], strokeWidth: 1, strokeOpacity: Math.random()})
 			}
 		}
 	}
@@ -72,7 +72,7 @@ function draw_lines(struct){
 function draw_faces(struct){
 	for(var index = 0; index<struct.length-1; index++){
 		origin = struct[index]
-		for(var index3 = 0; index3<struct.length-1; index3+=1){
+		for(var index3 = 0; index3<struct.length-2; index3+=1){
 			line_to_polygon([struct[index3]['coords'][0], struct[index3]['coords'][1]], 
 							[struct[index3+1]['coords'][0], struct[index3+1]['coords'][1]],
 							[struct[index3+2]['coords'][0], struct[index3+2]['coords'][1]],
@@ -83,7 +83,7 @@ function draw_faces(struct){
 function draw_text(struct){
 	for(var index = 0; index<struct.length-1; index++){
 		canvas.text(struct[index]['coords'][0], struct[index]['coords'][1], struct[index]['label'])
-			.attr({fill:'black', fillOpacity:.9})
+			.attr({fill:'white', fillOpacity:.9})
 	}
 }
 function draw_circles(struct){
@@ -108,12 +108,12 @@ function draw_structs(num_structs){
 };
 
 function randomize_color_palette_selection(){
-	if(color_palette){
-		color_palette = color_palettes[random_range(0, color_palettes.length)];
+	if(window.color_palette){
+		window.color_palette = color_palettes[random_range(0, color_palettes.length)];
 	}
 }
 function randomize_background_color(){
-	var color = window.color_palette[random_range(0, color_palette.length)]
+	var color = color_palette[random_range(0, window.color_palette.length)]
 	document.body.style.backgroundColor = color;
 }
 function draw(){
@@ -123,7 +123,7 @@ function draw(){
 	//randomize_color_palette_selection();
 	//randomize_background_color();
 	console.log(generate_opacity())
-	//randomize_color_palette_selection();
+	randomize_color_palette_selection();
 	//document.body.style.backgroundColor = background_color;
 
 	//redraw
@@ -138,7 +138,7 @@ $(document).ready(function(){
 	/*$(document).on('click', function(){
 		draw();
 	})*/
-	 window.clearInterval();
+	window.clearInterval();
 	$(document).on('click', function(){
 		window.clearInterval(window.interval)
 		var time_in_between = 0; //in seconds
@@ -148,9 +148,12 @@ $(document).ready(function(){
 		$(document).on('click', function(){
 				window.clearInterval(window.interval)
 				window.interval = window.setInterval(function(){
-					window.clearInterval();
+					$(document).on('click', function(){
+						time_in_between=0
+						window.clearInterval(window.interval);
+					})
 					draw()
-				}, (60/time_in_between))
+				}, /*(60/time_in_between)*/6000)
 			})
 		//window.location.reload()
 	})
